@@ -1,27 +1,6 @@
 #!/usr/bin/env python3
 """
-BlogTracker 3.0 — Universal Crawler (Configurable Cleaning)
-✅ TRULY PLAYWRIGHT-FREE — Uses plain requests for all crawling
-✅ DUAL CLEANING MODES — Toggle between LLM cleaning (Gemma) or manual parsing
-✅ LLM ARTIFACT REMOVAL — Strips hallucinated commentary/preambles/tags
-✅ SMART URL DETECTION — Excludes category/archive pages
-✅ TWO-STAGE DISCOVERY — Visits section pages to find articles (works for Politico, NYT, etc.)
-✅ BOTH FIELDS CLEANED — content_text (cleaned) + content_html (article HTML only)
-✅ FULLY CONFIGURABLE — Easy to customize junk removal and URL exclusion
 
-Fixes ALL known issues:
- • Missing content
- • Missing authors  
- • Missing dates
- • Empty summaries
- • HTML tags in content (FIXED!)
- • Wrong URLs (category pages, share links, image URLs) (FIXED!)
- • Image metadata in text (FIXED!)
- • LLM hallucinations/commentary (FIXED!)
- • Section pages blocking discovery (FIXED! - now visits /news, /politics to find articles)
- • Medium/TimesGroup/Hindi/Marathi special cases
- • Sites requiring deep traversal
- • HTML junk, ads, footer spam
 
 Configuration:
  • USE_LLM_CLEANING — Toggle between LLM (True) or manual (False) cleaning
@@ -143,7 +122,7 @@ URL_EXCLUDE_PATTERNS = [
 
 
 # ------------------------------
-# GPT-OSS CLEANING & SUMMARIZATION
+# LLM CLEANING & SUMMARIZATION
 # ------------------------------
 API_URL = "Your llm api url"
 MODEL_NAME = "model name"
@@ -622,30 +601,10 @@ def extract_article_links(html: str, base_url: str):
 # DATABASE UPSERT
 # ------------------------------
 
-def upsert_post(db, blog_id, url, title, text, html, author, tags, published, summary):
-    content_hash = hashlib.sha1(text.encode("utf-8", errors="ignore")).hexdigest()
-
-    stmt = (
-        pg_insert(Post)
-        .values(
-            blog_id=blog_id,
-            url_canonical=url,
-            title=title,
-            content_text=text,
-            content_html=html,
-            author=author,
-            tags=tags,
-            language="en",
-            published_at=published,
-            content_hash=content_hash,
-            views=0,
-            summary=summary,
-        )
-        .on_conflict_do_nothing(index_elements=["url_canonical"])
-        .returning(Post.id)
-    )
-
-    row = db.execute(stmt).fetchone()
+def upsert_post(db, blog_id, url, title, text, html, author, tags, published, summary): #replace with your columns
+    """
+    Your logic to update in the database
+    """
     db.commit()
     return row[0] if row else None
 
